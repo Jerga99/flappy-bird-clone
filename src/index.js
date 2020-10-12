@@ -11,7 +11,7 @@ const config = {
     // Arcade physics plugin, manages physics simulation
     default: 'arcade',
     arcade: {
-      // gravity: { y: 200 }
+      gravity: { y: 400 },
       debug: true,
     }
   },
@@ -30,23 +30,25 @@ function preload() {
 const VELOCITY = 200;
 
 let bird = null;
+let flapVelocity = 250;
 let totalDelta = null;
 
 function create() {
   this.add.image(0, 0, 'sky').setOrigin(0);
-  bird = this.physics.add.sprite(config.width * 0.1, config.height / 2, 'bird').setOrigin(0)
-  bird.body.velocity.x = VELOCITY;
+  bird = this.physics.add.sprite(config.width * 0.1, config.height / 2, 'bird').setOrigin(0);
+
+  this.input.on('pointerdown', flap);
+  this.input.keyboard.on('keydown_SPACE', flap);
 }
 
 // if bird position x is same or larger than width of canvas go back to the left
 // if bird position x is smaller or equal to 0 then move back to the right
 function update(time, delta) {
 
-  if (bird.x >= config.width - bird.width) {
-    bird.body.velocity.x = -VELOCITY;
-  } else if (bird.x <= 0) {
-    bird.body.velocity.x = VELOCITY;
-  }
+}
+
+function flap() {
+  bird.body.velocity.y = -flapVelocity;
 }
 
 
