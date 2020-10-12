@@ -11,7 +11,8 @@ const config = {
     // Arcade physics plugin, manages physics simulation
     default: 'arcade',
     arcade: {
-      gravity: {y: 200}
+      // gravity: { y: 200 }
+      debug: true,
     }
   },
   scene: {
@@ -21,48 +22,31 @@ const config = {
   }
 }
 
-// Loading assets, such as images, music, animations ....
 function preload() {
-  // 'this' context - scene
-  // contains functions and properties we can use
   this.load.image('sky', 'assets/sky.png');
   this.load.image('bird', 'assets/bird.png')
 }
+
+const VELOCITY = 200;
 
 let bird = null;
 let totalDelta = null;
 
 function create() {
-  // x - 400
-  // y - 300
-  // key of the image
-  // this.add.image(0, 0, 'sky').setOrigin(0, 0);
-  // this.add.image(400, 300, 'sky').setOrigin(0, 0.5);
-  // this.add.image(0, 0, 'sky').setOrigin(0, 0);
   this.add.image(0, 0, 'sky').setOrigin(0);
-  // middle of the height , 1/10 width
   bird = this.physics.add.sprite(config.width * 0.1, config.height / 2, 'bird').setOrigin(0)
-
-  // bird.body.gravity.y = 200;
+  bird.body.velocity.x = VELOCITY;
 }
 
-// t0 = 0px/s
-// t1 = 200px/s
-// t2 = 400px/s
-// t3 = 600px/s
-
-// 60fps
-// 60 times per second
-// 60 * 16ms = 1000ms
+// if bird position x is same or larger than width of canvas go back to the left
+// if bird position x is smaller or equal to 0 then move back to the right
 function update(time, delta) {
 
-  totalDelta += delta;
-
-  if (totalDelta < 1000) { return; }
-
-  console.log(bird.body.velocity.y);
-  totalDelta = 0;
-
+  if (bird.x >= config.width - bird.width) {
+    bird.body.velocity.x = -VELOCITY;
+  } else if (bird.x <= 0) {
+    bird.body.velocity.x = VELOCITY;
+  }
 }
 
 
