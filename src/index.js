@@ -9,7 +9,10 @@ const config = {
   height: 600,
   physics: {
     // Arcade physics plugin, manages physics simulation
-    default: 'arcade'
+    default: 'arcade',
+    arcade: {
+      gravity: {y: 200}
+    }
   },
   scene: {
     preload,
@@ -27,6 +30,7 @@ function preload() {
 }
 
 let bird = null;
+let totalDelta = null;
 
 function create() {
   // x - 400
@@ -39,14 +43,26 @@ function create() {
   // middle of the height , 1/10 width
   bird = this.physics.add.sprite(config.width * 0.1, config.height / 2, 'bird').setOrigin(0)
 
-  bird.body.gravity.y = 200;
+  // bird.body.gravity.y = 200;
 }
+
+// t0 = 0px/s
+// t1 = 200px/s
+// t2 = 400px/s
+// t3 = 600px/s
 
 // 60fps
 // 60 times per second
 // 60 * 16ms = 1000ms
 function update(time, delta) {
+
+  totalDelta += delta;
+
+  if (totalDelta < 1000) { return; }
+
   console.log(bird.body.velocity.y);
+  totalDelta = 0;
+
 }
 
 
