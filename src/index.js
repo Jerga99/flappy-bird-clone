@@ -21,12 +21,15 @@ const config = {
 function preload() {
   // 'this' context - scene
   // contains functions and properties we can use
-  debugger
+  this.load.image('sky', 'assets/sky.png');
 }
 
 
 function create() {
-  debugger
+  // x - 400
+  // y - 300
+  // key of the image
+  this.add.image(config.width / 2, config.height / 2, 'sky');
 }
 
 
