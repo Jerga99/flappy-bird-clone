@@ -5,7 +5,7 @@ import Phaser from 'phaser';
 const config = {
   // WebGL (Web graphics library) JS Api for rendering 2D and 3D graphics
   type: Phaser.AUTO,
-  width: 800,
+  width: 2800,
   height: 600,
   physics: {
     // Arcade physics plugin, manages physics simulation
@@ -67,6 +67,8 @@ function update(time, delta) {
  if (bird.y > config.height || bird.y < -bird.height) {
   restartBirdPosition();
  }
+
+ recyclePipes();
 }
 
 function placePipe(uPipe, lPipe) {
@@ -80,6 +82,18 @@ function placePipe(uPipe, lPipe) {
 
   lPipe.x = uPipe.x;
   lPipe.y = uPipe.y + pipeVerticalDistance
+}
+
+function recyclePipes() {
+  const tempPipes = [];
+  pipes.getChildren().forEach(pipe => {
+    if (pipe.getBounds().right <= 0) {
+      tempPipes.push(pipe);
+      if (tempPipes.length === 2) {
+        placePipe(...tempPipes);
+      }
+    }
+  })
 }
 
 function getRightMostPipe() {
