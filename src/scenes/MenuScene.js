@@ -16,7 +16,20 @@ class MenuScene extends BaseScene {
   create() {
     super.create();
 
-    this.createMenu(this.menu);
+    this.createMenu(this.menu, this.setupMenuEvents.bind(this));
+  }
+
+  setupMenuEvents(menuItem) {
+    const textGO = menuItem.textGO;
+    textGO.setInteractive();
+
+    textGO.on('pointerover', () => {
+      textGO.setStyle({fill: '#ff0'});
+    })
+
+    textGO.on('pointerout', () => {
+      textGO.setStyle({fill: '#fff'});
+    })
   }
 }
 
