@@ -82,9 +82,15 @@ class PlayScene extends Phaser.Scene {
   }
 
   createPause() {
-    this.add.image(this.config.width - 10, this.config.height -10, 'pause')
+    const pauseButton = this.add.image(this.config.width - 10, this.config.height -10, 'pause')
+      .setInteractive()
       .setScale(3)
-      .setOrigin(1)
+      .setOrigin(1);
+
+    pauseButton.on('pointerdown', () => {
+      this.physics.pause();
+      this.scene.pause();
+    })
   }
 
   handleInputs() {
