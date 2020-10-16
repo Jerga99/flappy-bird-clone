@@ -28,11 +28,25 @@ class PlayScene extends BaseScene {
     this.createScore();
     this.createPause();
     this.handleInputs();
+    this.listenToEvents();
   }
 
   update() {
     this.checkGameStatus();
     this.recyclePipes();
+  }
+
+  listenToEvents() {
+    this.events.on('resume', () => {
+      this.initialTime = 3;
+      this.countDownText = this.add.text(...this.screenCenter, 'Fly in: ' + this.initialTime, this.fontOptions).setOrigin(0.5);
+      this.timedEvent = this.time.addEvent({
+        delay: 1000,
+        callback: () => console.log(this.initialTime--),
+        callbackScope: this,
+        loop: true
+      })
+    })
   }
 
   createBG() {
