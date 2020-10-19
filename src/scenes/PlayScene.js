@@ -45,6 +45,20 @@ class PlayScene extends BaseScene {
     this.createPause();
     this.handleInputs();
     this.listenToEvents();
+
+    this.anims.create({
+      key: 'fly',
+      frames: this.anims.generateFrameNumbers('bird', { start: 9, end: 15}),
+      // 24 fps default, it will play animation consisting of 24 frames in 1 second
+      // in case of framerate 2 and sprite of 8 frames animations will play in
+      // 4 sec; 8 / 2 = 4
+      frameRate: 8,
+      // repeat infinitely
+      repeat: -1
+    })
+
+
+    this.bird.play('fly');
   }
 
   update() {
