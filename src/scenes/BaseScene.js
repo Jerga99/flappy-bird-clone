@@ -6,14 +6,24 @@ class BaseScene extends Phaser.Scene {
   constructor(key, config) {
     super(key);
     this.config = config;
-    this.screenCenter = [config.width / 2, config.height / 2];
     this.fontSize = 34;
     this.lineHeight = 42;
     this.fontOptions = {fontSize: `${this.fontSize}px`, fill: '#fff'};
   }
 
   create() {
-    this.add.image(0, 0, 'sky').setOrigin(0);
+    // can adjust depending on screen size
+    this.scaleRatio = 1;
+
+    if (!this.game.device.os.desktop){
+      this.scaleRatio = window.devicePixelRatio
+    }
+
+    const canvas	= document.getElementsByTagName('canvas')[0];
+    this.screenCenter = [canvas.width / 2, canvas.height / 2];
+    this.add.image(0, 0, 'sky')
+      .setScale(3 * this.scaleRatio)
+      .setOrigin(0);
 
     if (this.config.canGoBack) {
       const backButton = this.add.image(this.config.width - 10, this.config.height -10, 'back')

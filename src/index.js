@@ -8,14 +8,9 @@ import PreloadScene from './scenes/PreloadScene';
 import ScoreScene from './scenes/ScoreScene';
 import PauseScene from './scenes/PauseScene';
 
-const WIDTH = 400;
-const HEIGHT = 600;
-const BIRD_POSITION = {x: WIDTH * 0.1, y: HEIGHT / 2 };
-
 const SHARED_CONFIG = {
-  width: WIDTH,
-  height: HEIGHT,
-  startPosition: BIRD_POSITION
+  width: '100%',
+  height: '100%'
 }
 
 const Scenes = [PreloadScene, MenuScene, ScoreScene, PlayScene, PauseScene];
@@ -24,12 +19,17 @@ const initScenes = () => Scenes.map(createScene)
 
 const config = {
   type: Phaser.AUTO,
+  scale: {
+    mode: Phaser.Scale.FIT,
+    parent: 'phaser-app',
+    autoCenter: Phaser.Scale.CENTER_BOTH,
+  },
   ...SHARED_CONFIG,
   pixelArt: true,
   physics: {
     default: 'arcade',
     arcade: {
-      // debug: true,
+      debug: false,
     }
   },
   scene: initScenes()

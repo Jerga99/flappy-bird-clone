@@ -2,6 +2,7 @@
 import BaseScene from './BaseScene';
 
 const PIPES_TO_RENDER = 4;
+const COINS_TO_RENDER = 3;
 
 class PlayScene extends BaseScene {
 
@@ -14,30 +15,37 @@ class PlayScene extends BaseScene {
 
     this.pipeHorizontalDistance = 0;
     this.flapVelocity = 300;
+    this.scaleRation = 1;
 
     this.score = 0;
     this.scoreText = '';
 
     this.currentDifficulty = 'easy';
-    this.difficulties = {
-      'easy': {
-        pipeHorizontalDistanceRange: [300, 350],
-        pipeVerticalDistanceRange: [150, 200]
-      },
-      'normal': {
-        pipeHorizontalDistanceRange: [280, 330],
-        pipeVerticalDistanceRange: [140, 190]
-      },
-      'hard': {
-        pipeHorizontalDistanceRange: [250, 310],
-        pipeVerticalDistanceRange: [50, 100]
-      }
-    }
   }
 
   create() {
-    this.currentDifficulty = 'easy';
     super.create();
+
+    this.difficulties = {
+      'easy': {
+        pipeHorizontalDistanceRange: [300 * this.scaleRatio, 350 * this.scaleRatio],
+        pipeVerticalDistanceRange: [150 * this.scaleRatio, 200 * this.scaleRatio]
+      },
+      'normal': {
+        pipeHorizontalDistanceRange: [280 * this.scaleRatio, 330 * this.scaleRatio],
+        pipeVerticalDistanceRange: [140 * this.scaleRatio, 190 * this.scaleRatio]
+      },
+      'hard': {
+        pipeHorizontalDistanceRange: [250 * this.scaleRatio, 310 * this.scaleRatio],
+        pipeVerticalDistanceRange: [50 * this.scaleRatio, 100 * this.scaleRatio]
+      }
+    }
+
+    const canvas	= document.getElementsByTagName('canvas')[0];
+    this.screenWidth = canvas.width;
+    this.screenHeight = canvas.height;
+
+    this.currentDifficulty = 'easy';
     this.createBird();
     this.createPipes();
     this.createColliders();
@@ -48,7 +56,7 @@ class PlayScene extends BaseScene {
 
     this.anims.create({
       key: 'fly',
-      frames: this.anims.generateFrameNumbers('bird', { start: 9, end: 15}),
+      frames: this.anims.generateFrameNumbers('bird', { start: 8, end: 15}),
       // 24 fps default, it will play animation consisting of 24 frames in 1 second
       // in case of framerate 2 and sprite of 8 frames animations will play in
       // 4 sec; 8 / 2 = 4
@@ -59,6 +67,7 @@ class PlayScene extends BaseScene {
 
 
     this.bird.play('fly');
+    // this.scale.on('resize', resize, this);
   }
 
   update() {
@@ -92,36 +101,43 @@ class PlayScene extends BaseScene {
     }
   }
 
-  createBG() {
-    this.add.image(0, 0, 'sky').setOrigin(0);
-  }
-
   createBird() {
-    this.bird = this.physics.add.sprite(this.config.startPosition.x, this.config.startPosition.y, 'bird')
+    this.bird = this.physics.add.sprite(20, this.screenHeight / 2, 'bird')
       .setFlipX(true)
-      .setScale(3)
+      .setScale(3 * this.scaleRatio)
       .setOrigin(0);
 
     this.bird.setBodySize(this.bird.width, this.bird.height - 8);
-    this.bird.body.gravity.y = 600;
+    this.bird.body.gravity.y = 600 * this.scaleRatio;
     this.bird.setCollideWorldBounds(true);
   }
 
   createPipes() {
     this.pipes = this.physics.add.group();
+    this.coins = this.physics.add.group();
+
+    this.coins.createMultiple({
+        classType: Phaser.Physics.Arcade.Sprite,
+        frameQuantity: 10,
+        frame: 'bomb',
+        visible: false,
+        active: false
+    });
 
     for (let i = 0; i < PIPES_TO_RENDER; i++) {
       const upperPipe = this.pipes.create(0, 0, 'pipe')
         .setImmovable(true)
-        .setOrigin(0, 1);
+        .setOrigin(0, 1)
+        .setScale(this.scaleRatio, 2 * this.scaleRatio);
       const lowerPipe = this.pipes.create(0, 0, 'pipe')
         .setImmovable(true)
-        .setOrigin(0, 0);
+        .setOrigin(0, 0)
+        .setScale(this.scaleRatio, 2 * this.scaleRatio);
 
       this.placePipe(upperPipe, lowerPipe)
     }
 
-    this.pipes.setVelocityX(-200);
+    this.pipes.setVelocityX(-200 * this.scaleRatio);
   }
 
   createColliders() {
@@ -139,7 +155,7 @@ class PlayScene extends BaseScene {
     this.isPaused = false;
     const pauseButton = this.add.image(this.config.width - 10, this.config.height -10, 'pause')
       .setInteractive()
-      .setScale(3)
+      .setScale(3 * this.scaleRatio)
       .setOrigin(1);
 
     pauseButton.on('pointerdown', () => {
@@ -164,8 +180,9 @@ class PlayScene extends BaseScene {
   placePipe(uPipe, lPipe) {
     const difficulty = this.difficulties[this.currentDifficulty];
     const rightMostX = this.getRightMostPipe();
+
     const pipeVerticalDistance = Phaser.Math.Between(...difficulty.pipeVerticalDistanceRange);
-    const pipeVerticalPosition = Phaser.Math.Between(0 + 20, this.config.height - 20 - pipeVerticalDistance);
+    const pipeVerticalPosition = Phaser.Math.Between(0 + 20, (this.screenHeight - 20) - pipeVerticalDistance);
     const pipeHorizontalDistance = Phaser.Math.Between(...difficulty.pipeHorizontalDistanceRange);
 
     uPipe.x = rightMostX + pipeHorizontalDistance;
@@ -173,6 +190,19 @@ class PlayScene extends BaseScene {
 
     lPipe.x = uPipe.x;
     lPipe.y = uPipe.y + pipeVerticalDistance
+
+    const distanceBetweenPipes = (uPipe.x - uPipe.width * this.scaleRatio) - rightMostX;
+    let distanceBetweenCoins = distanceBetweenPipes / COINS_TO_RENDER;
+    let coinX = lPipe.x + distanceBetweenCoins;
+
+    for(let i = 0; i < COINS_TO_RENDER; i++) {
+      this.coins
+        .get(coinX, uPipe.y + Phaser.Math.Between(-150 * this.scaleRatio, 450 * this.scaleRatio), 'bomb')
+        .setVelocityX(-200 * this.scaleRatio)
+        .setScale(this.scaleRatio);
+
+        coinX += distanceBetweenCoins;
+    }
   }
 
   recyclePipes() {
@@ -186,6 +216,13 @@ class PlayScene extends BaseScene {
           this.saveBestScore();
           this.increaseDifficulty();
         }
+      }
+    })
+
+    this.coins.getChildren().forEach(coin => {
+      if (coin.getBounds().right <= 0) {
+        coin.body.reset(99999,99999)
+        coin.disableBody(false, false);
       }
     })
   }
@@ -236,7 +273,7 @@ class PlayScene extends BaseScene {
 
   flap() {
     if (this.isPaused) { return; }
-    this.bird.body.velocity.y = -this.flapVelocity;
+    this.bird.body.velocity.y = -this.flapVelocity * this.scaleRatio;
   }
 
   increaseScore() {
@@ -246,3 +283,4 @@ class PlayScene extends BaseScene {
 }
 
 export default PlayScene;
+
